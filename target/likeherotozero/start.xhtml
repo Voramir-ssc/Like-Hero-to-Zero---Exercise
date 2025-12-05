@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      >
+<h:head>
+    <style type="text/css">
+        body {
+            font-family: var(--font-family, inherit);
+        }
+    </style>
+    <title>Co2-Daten - Start</title>
+</h:head>
+<h:body style="margin-left: 75px; margin-right: 75px;">
+    <h2>Anmeldung</h2>
+    <h:form>
+        <h:panelGrid columns="2" cellpadding="5">
+            <h:outputLabel for="bn" value="Benutzername:" />
+            <h:inputText id="bn" value="#{loginController.benutzername}" />
+
+            <h:outputLabel for="pw" value="Passwort:" />
+            <h:inputSecret id="pw" value="#{loginController.passwort}" />
+            
+            <p:commandButton value="Login" action="#{benutzerBean.login}" />
+        </h:panelGrid>
+        <br/>
+        <h:outputText value="Wenn Sie zu einer wissenschaftlichen Einrichtung gehören und Daten anpassen möchten, melden Sie sich bitte zur Registrierung per E-Mail an admin@likeherotozero.de."/>
+    </h:form>
+    <br />
+    <h2>CO2-Daten</h2>
+    <br />
+    <h:form id="filterSuche">
+        <p:selectCheckboxMenu id="checkBoxMenu"
+                              dynamic="true"                      
+                              filter="true" filterMatchMode="contains" 
+                              updateLabel="false" 
+                              label="Länderauswahl"
+                              style="width: 15rem" panelStyle="width: 15rem" scrollHeight="250"
+                              value="#{co2DatenBean.auswahlIsos}"
+                              onchange="PrimeFaces.ajax.Request.handle({source: this, update: 'datenWrapper'});"> 
+                              <!--onchange sorgt dafür, dass der Alle Auswählen (showSelectAll) auch die Aktualisierung der Tabelle triggert-->
+            <f:selectItems id="selectedItems" value="#{co2DatenBean.isos}" var="iso" itemLabel="#{co2DatenBean.laenderNamen[iso]}" itemValue="#{iso}"/>
+            <p:ajax event="change" update="datenWrapper"/>
+        </p:selectCheckboxMenu>
+    </h:form>
+    <br />
+    <h:panelGroup id="datenWrapper" layout="block">
+        <p:dataTable id="datenTabelle" value="#{co2DatenBean.eintraege}" var="co2Daten" scrollable="true" scrollHeight="450" rendered="#{not empty co2DatenBean.auswahlIsos}">
+            <p:column style="width:150px">
+                <f:facet name="header">
+                    Jahr
+                </f:facet>
+                <h:outputText value="#{co2Daten.jahr}"/>
+            </p:column>
+            <p:columns value="#{co2DatenBean.auswahlIsos}" var="iso" columnIndexVar="colIndex" style="width:150px">
+                <f:facet name="header">
+                    #{co2DatenBean.laenderNamen[iso]}
+                </f:facet>
+                <h:outputText value="#{co2DatenBean.datenMap[co2Daten][iso]}" />
+            </p:columns>
+        </p:dataTable>
+    </h:panelGroup>
+    
+</h:body>
+</html>
